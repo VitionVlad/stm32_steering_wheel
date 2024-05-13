@@ -38,6 +38,10 @@
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
 
+#define bool uint8_t
+#define true 1
+#define false 0
+
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -112,7 +116,15 @@ int main(void)
   int aLastState  = HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_7);
   int aState  = 0;
   int oldg = HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3);
-  uint8_t blocked = 0;
+  bool blocked = false;
+  bool light = false;
+  bool llight = false;
+  bool pov = false;
+  bool lpov = false;
+  bool lr = false;
+  bool llr = false;
+  bool lav = false;
+  bool llav = false;
   while (1){
 	  //keyboardhid.KEYCODE1 = 0;
 	  keyboardhid.KEYCODE1 = 17;
@@ -141,6 +153,42 @@ int main(void)
 	  }
 	  if(blocked){
 		  keyboardhid.KEYCODE1 = 17;
+	  }
+	  light = HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_0);
+	  if(llight != light){
+		  keyboardhid.KEYCODE1 = 9;
+		  llight = light;
+	  }
+	  pov = HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_1);
+	  if(lpov != pov){
+		  switch(llr){
+		  	case true:
+		  		keyboardhid.KEYCODE1 = 20;
+		  		break;
+		  	case false:
+		  		keyboardhid.KEYCODE1 = 8;
+		  		break;
+		  }
+		  lpov = pov;
+	  }
+	  lr = HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_8);
+	  if(llr != lr){
+		  if(lpov == false){
+			 switch(lr){
+			 case true:
+			  	  keyboardhid.KEYCODE1 = 20;
+			  	  break;
+			  case false:
+			  	  keyboardhid.KEYCODE1 = 8;
+				  break;
+			  }
+		  }
+		  llr = lr;
+	  }
+	  lav = HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_9);
+	  if(llav != lav){
+	  	 keyboardhid.KEYCODE1 = 12;
+	  	 llav = lav;
 	  }
 	  USBD_HID_SendReport(&hUsbDeviceFS, &keyboardhid, sizeof (keyboardhid));
 	  HAL_Delay(10);
